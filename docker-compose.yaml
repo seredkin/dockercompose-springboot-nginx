@@ -8,16 +8,28 @@ services:
    - 8983:8080
    volumes:
    - ./nginx/conf.d:/etc/nginx/conf.d
+  zoo1:
+    image: zookeeper
+    container_name: zoo1
+    restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888
   app:
     container_name: app
     image: solr:6.6-alpine
     ports:
       - 8982:8983
     depends_on:
-      - nginx
+      - zoo1
     entrypoint:
       - docker-entrypoint.sh
       - solr
       - start
       - -f
       - -c
+      - -z
+      - zoo1:2181

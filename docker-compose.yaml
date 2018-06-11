@@ -1,22 +1,23 @@
 version: '2'
 services:
   nginx:
-   container_name: some-nginx
-   image: nginx:1.13
+   container_name: nginx-app
+   image: nginx:stable
    restart: always
    ports:
-   - 80:80
-   - 443:443
+   - 8983:8080
    volumes:
    - ./nginx/conf.d:/etc/nginx/conf.d
   app:
-    restart: always
-    build: ./app
-    working_dir: /app
-    volumes:
-      - ./app:/app
-    expose:
-      - "8080"
-    command: mvn clean spring-boot:run
+    container_name: app
+    image: solr:6.6-alpine
+    ports:
+      - 8982:8983
     depends_on:
       - nginx
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr
+      - start
+      - -f
+      - -c
